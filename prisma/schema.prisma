@@ -38,6 +38,27 @@ model Card {
   imgUrl        String?
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @updatedAt
+
+  deckCards     DeckCard[]  // Relation avec DeckCard
+}
+
+model Deck {
+  id        Int        @id @default(autoincrement())
+  name      String
+  user      User       @relation(fields: [userId], references: [id])
+  userId    Int
+  cards     DeckCard[]
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+}
+
+model DeckCard {
+  id      Int   @id @default(autoincrement())
+  deck    Deck  @relation(fields: [deckId], references: [id])
+  deckId  Int
+  card    Card  @relation(fields: [cardId], references: [id])
+  cardId  Int
+  count   Int
 }
 
 model User {
@@ -45,6 +66,7 @@ model User {
   username  String   @unique
   email     String   @unique
   password  String
+  decks     Deck[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
