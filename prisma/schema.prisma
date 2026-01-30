@@ -39,7 +39,7 @@ model Card {
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @updatedAt
 
-  deckCards     DeckCard[]  // Relation avec DeckCard
+  decks     DeckCard[]  // Relation avec DeckCard
 }
 
 model Deck {
@@ -58,7 +58,6 @@ model DeckCard {
   deckId  Int
   card    Card  @relation(fields: [cardId], references: [id])
   cardId  Int
-  count   Int
 }
 
 model User {

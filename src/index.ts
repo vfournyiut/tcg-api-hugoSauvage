@@ -2,6 +2,9 @@ import {createServer} from "http";
 import {env} from "./env";
 import express from "express";
 import cors from "cors";
+import 'dotenv/config'
+import {authRouter} from "../src/auth/auth.route"; 
+
 
 // Create Express app
 export const app = express();
@@ -24,17 +27,20 @@ app.get("/api/health", (_req, res) => {
     res.json({status: "ok", message: "TCG Backend Server is running"});
 });
 
+// Routes
+app.use("/api/auth", authRouter); // ← Monte ton router d'authentification
+
 // Start server only if this file is run directly (not imported for tests)
 if (require.main === module) {
     // Create HTTP server
     const httpServer = createServer(app);
-
 
     // Start server
     try {
         httpServer.listen(env.PORT, () => {
             console.log(`\n🚀 Server is running on http://localhost:${env.PORT}`);
             console.log(`🧪 Socket.io Test Client available at http://localhost:${env.PORT}`);
+            console.log(`🔐 Auth routes available at http://localhost:${env.PORT}/api/auth`);
         });
     } catch (error) {
         console.error("Failed to start server:", error);
