@@ -4,7 +4,7 @@ import express from "express";
 import cors from "cors";
 import 'dotenv/config'
 import {authRouter} from "../src/auth/auth.route"; 
-
+import  CardRoute from "./cards/cards.route";
 
 // Create Express app
 export const app = express();
@@ -29,6 +29,7 @@ app.get("/api/health", (_req, res) => {
 
 // Routes
 app.use("/api/auth", authRouter); // ← Monte ton router d'authentification
+app.use("/api/cards",CardRoute)
 
 // Start server only if this file is run directly (not imported for tests)
 if (require.main === module) {
