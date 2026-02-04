@@ -10,7 +10,7 @@ decksRoute.post("/", authenticateToken, async (req: Request, res: Response) => {
         const userId = req.user?.userId;
 
         if(!userId){
-            return res.status(400).json({ error: "Le nom du deck est obligatoire" });
+            return res.status(400).json({ error: "l'id de l'utilisateur est invaide" });
 
         }
 
