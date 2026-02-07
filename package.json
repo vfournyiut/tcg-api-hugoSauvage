@@ -20,8 +20,7 @@
     "db:reset": "npm run db:generate && prisma migrate reset --force && npm run db:seed",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "format":"prettier --write"
-
+    "format": "prettier --write ."
   },
   "dependencies": {
     "@prisma/adapter-pg": "7.1.0",
@@ -55,6 +54,7 @@
     "@vitest/coverage-v8": "4.0.15",
     "@vitest/ui": "4.0.15",
     "eslint": "9.39.2",
+    "prettier": "^3.8.1",
     "tsx": "4.7.0",
     "typescript": "5.4.5",
     "typescript-eslint": "8.54.0",
