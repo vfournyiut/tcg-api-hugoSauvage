@@ -6,8 +6,8 @@ import 'dotenv/config';
 import swaggerUi from "swagger-ui-express";
 
 import { authRouter } from "../src/auth/auth.route";
-import CardRoute from "./cards/cards.route";
-import { decksRoute } from "./deck/deck.route";
+import CardRoute from "./routes/cards.route";
+import { decksRoute } from "./routes/deck.route";
 import { swaggerDocument } from "./docs";
 
 // Create Express app
