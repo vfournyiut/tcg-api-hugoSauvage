@@ -1,0 +1,50 @@
+openapi: 3.0.0
+info:
+  title: API Documentation
+  version: 1.0.0
+  description: Documentation de l'API avec authentification JWT
+  contact:
+    name: Votre nom
+    email: votre@email.com
+
+servers:
+  - url: http://localhost:3000
+    description: Serveur de développement
+  - url: https://api.production.com
+    description: Serveur de production
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: "Token JWT à obtenir via /auth/login"
+
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: "Alice"
+        email:
+          type: string
+          format: email
+          example: "alice@example.com"
+
+    Error:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "Message d'erreur"
+
+tags:
+  - name: Authentication
+    description: Gestion de l'authentification
+  - name: Users
+    description: Gestion des utilisateurs
