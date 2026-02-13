@@ -4,10 +4,6 @@ on:
   pull_request:
     branches:
       - main
-      - develop
-  push:
-    branches:
-      - main
 
 jobs:
   test-and-build:
@@ -27,7 +23,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          rm -rf node_modules package-lock.json
+          rm -rf node_modules
           npm install
 
       - name: Generate Prisma Client
@@ -37,6 +33,12 @@ jobs:
 
       - name: Run TypeScript type check
         run: npm run ts:check
+
+      - name: Lint project
+        run: npm run lint
+      
+      - name: Format
+        run: nmp run format
 
       - name: Build project
         run: npm run build
