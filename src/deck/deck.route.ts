@@ -4,6 +4,32 @@ import { authenticateToken } from "../auth/auth.middleware";
 
 export const decksRoute = Router();
 
+/**
+ * Route POST pour créer un nouveau deck de cartes Pokémon
+ * 
+ * @route POST /decks
+ * @middleware authenticateToken - Vérifie l'authentification de l'utilisateur
+ * 
+ * @param {Request} req - Objet Request d'Express
+ * @param {string} req.body.name - Nom du deck (obligatoire)
+ * @param {number[]} req.body.cards - Tableau de 10 numéros Pokédex (obligatoire)
+ * @param {number} req.user.userId - ID de l'utilisateur authentifié (ajouté par le middleware)
+ * 
+ * @param {Response} res - Objet Response d'Express
+ * 
+ * @returns {Promise<Response>} 201 - Deck créé avec succès
+ * @returns {object} deck - Objet du deck créé
+ * @returns {number} deck.id - ID du deck
+ * @returns {string} deck.name - Nom du deck
+ * @returns {Array} deck.cards - Liste des cartes associées au deck
+ * 
+ * @throws {400} L'ID de l'utilisateur est invalide
+ * @throws {400} Le nom du deck est manquant
+ * @throws {400} La liste des cartes n'est pas un tableau
+ * @throws {400} Le deck ne contient pas exactement 10 cartes
+ * @throws {400} Une ou plusieurs cartes n'existent pas en base de données
+ * @throws {500} Erreur serveur lors de la création du deck
+ */
 decksRoute.post("/", authenticateToken, async (req: Request, res: Response) => {
     try {
         const { name, cards } = req.body;
@@ -66,7 +92,29 @@ decksRoute.post("/", authenticateToken, async (req: Request, res: Response) => {
 });
 
 
-// GET /decks/mine - Récupérer tous les decks de l'utilisateur authentifié avec leurs cartes
+/**
+ * Route GET pour récupérer tous les decks de l'utilisateur authentifié
+ * 
+ * @route GET /decks/mine
+ * @middleware authenticateToken - Vérifie l'authentification de l'utilisateur
+ * 
+ * @param {Request} req - Objet Request d'Express
+ * @param {number} req.user.userId - ID de l'utilisateur authentifié (ajouté par le middleware)
+ * 
+ * @param {Response} res - Objet Response d'Express
+ * 
+ * @returns {Promise<Response>} 200 - Liste des decks récupérée avec succès
+ * @returns {Array<object>} decks - Tableau des decks de l'utilisateur
+ * @returns {number} decks[].id - ID du deck
+ * @returns {string} decks[].name - Nom du deck
+ * @returns {number} decks[].userId - ID du propriétaire
+ * @returns {Date} decks[].createdAt - Date de création
+ * @returns {Array} decks[].cards - Liste des cartes avec leurs détails complets
+ * 
+ * @throws {401} Utilisateur non authentifié (normalement géré par le middleware)
+ * @throws {500} Erreur serveur lors de la récupération des decks
+ * 
+ */
 decksRoute.get('/mine', authenticateToken, async (req: Request, res: Response) => {  
     try {
         const userId = req.user?.userId;
@@ -99,7 +147,32 @@ decksRoute.get('/mine', authenticateToken, async (req: Request, res: Response) =
         return res.status(500).json({ error: 'Erreur serveur' });
     }
 });
-// GET /decks/:id - Récupérer un deck spécifique par son ID
+
+/**
+ * Route GET pour récupérer un deck spécifique par son ID
+ * 
+ * @route GET /decks/:id
+ * @middleware authenticateToken - Vérifie l'authentification de l'utilisateur
+ * 
+ * @param {Request} req - Objet Request d'Express
+ * @param {string} req.params.id - ID du deck à récupérer
+ * @param {number} req.user.userId - ID de l'utilisateur authentifié (ajouté par le middleware)
+ * 
+ * @param {Response} res - Objet Response d'Express
+ * 
+ * @returns {Promise<Response>} 200 - Deck récupéré avec succès
+ * @returns {object} deck - Objet du deck
+ * @returns {number} deck.id - ID du deck
+ * @returns {string} deck.name - Nom du deck
+ * @returns {number} deck.userId - ID du propriétaire
+ * @returns {Date} deck.createdAt - Date de création
+ * @returns {Array} deck.cards - Liste des cartes avec leurs détails complets
+ * 
+ * @throws {400} L'ID du deck n'est pas un nombre valide
+ * @throws {401} Utilisateur non authentifié
+ * @throws {404} Le deck n'existe pas ou n'appartient pas à l'utilisateur
+ * @throws {500} Erreur serveur lors de la récupération du deck
+ */
 decksRoute.get('/:id', authenticateToken, async (req: Request, res: Response) => {  
     try {
         const userId = req.user?.userId;
@@ -142,7 +215,30 @@ decksRoute.get('/:id', authenticateToken, async (req: Request, res: Response) =>
     }
 });
 
-// GET /cards - Récupérer toutes les cartes
+/**
+ * Route GET pour récupérer toutes les cartes disponibles
+ * Note: Cette route devrait probablement être dans un fichier cards.route.ts
+ * 
+ * @route GET /decks
+ * @access Public - Aucune authentification requise
+ * 
+ * @param {Request} _req - Objet Request d'Express (non utilisé)
+ * @param {Response} res - Objet Response d'Express
+ * 
+ * @returns {Promise<Response>} 200 - Liste des cartes récupérée avec succès
+ * @returns {Array<object>} cards - Tableau de toutes les cartes triées par numéro Pokédex
+ * @returns {number} cards[].id - ID de la carte
+ * @returns {number} cards[].pokedexNumber - Numéro du Pokédex
+ * @returns {string} cards[].name - Nom du Pokémon
+ * @returns {string} cards[].type - Type du Pokémon
+ * @returns {number} cards[].hp - Points de vie
+ * @returns {number} cards[].attack - Points d'attaque
+ * @returns {number} cards[].defense - Points de défense
+ * @returns {string} cards[].imageUrl - URL de l'image
+ * 
+ * @throws {500} Erreur serveur lors de la récupération des cartes
+ * 
+ */
 decksRoute.get('/', async (_req: Request, res: Response) => {  
     try {
         const cards = await prisma.card.findMany({
@@ -156,7 +252,36 @@ decksRoute.get('/', async (_req: Request, res: Response) => {
     }
 })
 
-// PATCH /decks/:id - Modifier le nom et/ou les cartes d'un deck
+/**
+ * Route PATCH pour modifier un deck existant (nom et/ou cartes)
+ * 
+ * @route PATCH /decks/:id
+ * @middleware authenticateToken - Vérifie l'authentification de l'utilisateur
+ * 
+ * @param {Request} req - Objet Request d'Express
+ * @param {string} req.params.id - ID du deck à modifier
+ * @param {number} req.user.userId - ID de l'utilisateur authentifié (ajouté par le middleware)
+ * @param {string} [req.body.name] - Nouveau nom du deck (optionnel)
+ * @param {number[]} [req.body.cards] - Nouveau tableau de 10 numéros Pokédex (optionnel)
+ * 
+ * @param {Response} res - Objet Response d'Express
+ * 
+ * @returns {Promise<Response>} 200 - Deck modifié avec succès
+ * @returns {object} deck - Objet du deck mis à jour
+ * @returns {number} deck.id - ID du deck
+ * @returns {string} deck.name - Nom du deck (nouveau si modifié)
+ * @returns {Array} deck.cards - Liste des cartes avec leurs détails complets
+ * 
+ * @throws {400} L'ID du deck n'est pas un nombre valide
+ * @throws {400} La liste des cartes n'est pas un tableau
+ * @throws {400} Le deck ne contient pas exactement 10 cartes
+ * @throws {400} Une ou plusieurs cartes n'existent pas en base de données
+ * @throws {401} Utilisateur non authentifié
+ * @throws {403} Le deck n'appartient pas à l'utilisateur
+ * @throws {404} Le deck n'existe pas
+ * @throws {500} Erreur serveur lors de la modification du deck
+ * 
+ */
 decksRoute.patch('/:id', authenticateToken, async (req: Request, res: Response) => {
     try {
         const userId = req.user?.userId;
@@ -246,7 +371,29 @@ decksRoute.patch('/:id', authenticateToken, async (req: Request, res: Response) 
     }
 });
 
-// DELETE /decks/:id - Supprimer un deck
+/**
+ * Route DELETE pour supprimer un deck
+ * 
+ * @route DELETE /decks/:id
+ * @middleware authenticateToken - Vérifie l'authentification de l'utilisateur
+ * 
+ * @param {Request} req - Objet Request d'Express
+ * @param {string} req.params.id - ID du deck à supprimer
+ * @param {number} req.user.userId - ID de l'utilisateur authentifié (ajouté par le middleware)
+ * 
+ * @param {Response} res - Objet Response d'Express
+ * 
+ * @returns {Promise<Response>} 200 - Deck supprimé avec succès
+ * @returns {object} response - Message de confirmation
+ * @returns {string} response.message - "Deck supprimé avec succès"
+ * 
+ * @throws {400} L'ID du deck n'est pas un nombre valide
+ * @throws {401} Utilisateur non authentifié
+ * @throws {403} Le deck n'appartient pas à l'utilisateur
+ * @throws {404} Le deck n'existe pas
+ * @throws {500} Erreur serveur lors de la suppression du deck
+ * 
+ */
 decksRoute.delete('/:id', authenticateToken, async (req: Request, res: Response) => {
     try {
         const userId = req.user?.userId;
